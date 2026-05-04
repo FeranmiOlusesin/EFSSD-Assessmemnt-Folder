@@ -1,0 +1,56 @@
+{% extends "base.html" %}
+
+{% block content %}
+
+    <h1>Order History</h1>
+    <hr>
+
+    {% if orders|length == 0 %}
+        <div class="alert alert-info">You have not placed any orders yet.</div>
+    {% else %}
+        <div class="table-responsive">
+            <table class="table table-striped align-middle">
+                <thead>
+                    <tr>
+                        <th scope="col">Order #</th>
+                        <th scope="col">Date</th>
+                        <th scope="col">Store</th>
+                        <th scope="col">Items</th>
+                        <th scope="col">Total (£)</th>
+                        <th scope="col">Status</th>
+                        <th scope="col">Details</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for order in orders %}
+                    <tr>
+                        <td>{{ order['id'] }}</td>
+                        <td>{{ order['date'] }}</td>
+                        <td>{{ order['store_name'] }}</td>
+                        <td>
+                            <ul class="mb-0">
+                                {% for item in order['items'] %}
+                                    <li>{{ item['product_name'] }} (x{{ item['quantity'] }})</li>
+                                {% endfor %}
+                            </ul>
+                        </td>
+                        <td>{{ order['total'] }}</td>
+                        <td>
+                            <span class="badge 
+                                {% if order['status'] == 'Completed' %}bg-success
+                                {% elif order['status'] == 'Pending' %}bg-warning
+                                {% else %}bg-secondary{% endif %}">
+                                {{ order['status'] }}
+                            </span>
+                        </td>
+                        <td>
+                            <a href="{{ url_for('order_details', id=order['id']) }}" class="btn btn-sm btn-outline-primary">View</a>
+                        </td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+    {% endif %}
+
+{% endblock %}
