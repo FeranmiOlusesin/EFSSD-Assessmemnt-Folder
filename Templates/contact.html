@@ -1,0 +1,44 @@
+{% extends "base.html" %}
+
+{% block content %}
+    <h1>Contact Us</h1>
+    <hr>
+    <p>
+        Have a question, need help with your order, or want to partner with us? Please fill out the form below and our team will get back to you as soon as possible.
+    </p>
+    <form action="{{ url_for('contact') }}" method="post" class="mb-4">
+        <div class="mb-3">
+            <label for="name" class="form-label">Your Name</label>
+            <input type="text" class="form-control" id="name" name="name" required>
+        </div>
+        <div class="mb-3">
+            <label for="email" class="form-label">Your Email</label>
+            <input type="email" class="form-control" id="email" name="email" required>
+        </div>
+        <div class="mb-3">
+            <label for="subject" class="form-label">Subject</label>
+            <input type="text" class="form-control" id="subject" name="subject" required>
+        </div>
+        <div class="mb-3">
+            <label for="message" class="form-label">Message</label>
+            <textarea class="form-control" id="message" name="message" rows="4" required></textarea>
+        </div>
+        <button type="submit" class="btn btn-success">Send Message</button>
+    </form>
+    <div>
+        <h5>Other ways to reach us:</h5>
+        <ul>
+            <li>Email: <a href="mailto:support@afrogrocer.com">support@afrogrocer.com</a></li>
+            <li>Phone: +44 1234 567890</li>
+            <li>Visit us: 123 Afro Market Street, London, UK</li>
+        </ul>
+    </div>
+{% endblock %}
+
+{% block sidebarContent %}
+    <div class="alert alert-info mt-3">
+        <strong>Need help?</strong><br>
+        Our support team is available Monday to Saturday, 9am–6pm.<br>
+        <a href="mailto:support@afrogrocer.com">Email us</a> or call +44 1234 567890.
+    </div>
+{% endblock
