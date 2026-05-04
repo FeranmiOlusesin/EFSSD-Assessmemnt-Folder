@@ -1,0 +1,64 @@
+{% extends "base.html" %}
+
+{% block content %}
+
+    <div class="py-4 text-center">
+        <h1>Welcome{% if username %}, {{ username }}{% endif %}!</h1>
+        <p class="lead">
+            Discover and order authentic African groceries and ingredients from trusted stores across the UK.<br>
+            Your personal shopper for all your favourite foods, delivered to your door.
+        </p>
+        <a href="{{ url_for('product_list') }}" class="btn btn-success btn-lg mt-2">Start Shopping</a>
+    </div>
+
+    <hr>
+
+    <h2 class="mt-5 mb-3">Featured Products</h2>
+    <div class="row g-3">
+        {% for product in featured_products %}
+        <div class="col-sm-6 col-lg-4">
+            <div class="card h-100">
+                <a href="{{ url_for('product_detail', id=product['id']) }}">
+                    <img src="{{ product['image_url'] }}" class="card-img-top" alt="{{ product['name'] }}">
+                </a>
+                <div class="card-body">
+                    <h5 class="card-title">{{ product['name'] }}</h5>
+                    <p class="card-text">{{ product['description']|truncate(80) }}</p>
+                    <div class="mb-2"><span class="badge bg-secondary">{{ product['category'] }}</span></div>
+                    <div class="mb-2"><strong>£{{ product['price'] }}</strong></div>
+                    <a href="{{ url_for('product_detail', id=product['id']) }}" class="btn btn-outline-success btn-sm">View</a>
+                </div>
+            </div>
+        </div>
+        {% else %}
+        <div class="col-12">
+            <p class="text-muted">No featured products available at the moment.</p>
+        </div>
+        {% endfor %}
+    </div>
+
+    <hr>
+
+    <h2 class="mt-5 mb-3">Popular Stores</h2>
+    <div class="row g-3">
+        {% for store in popular_stores %}
+        <div class="col-sm-6 col-lg-4">
+            <div class="card h-100">
+                <a href="{{ url_for('store_detail', id=store['id']) }}">
+                    <img src="{{ store['image_url'] }}" class="card-img-top" alt="{{ store['name'] }}">
+                </a>
+                <div class="card-body">
+                    <h5 class="card-title">{{ store['name'] }}</h5>
+                    <p class="card-text">{{ store['description']|truncate(80) }}</p>
+                    <a href="{{ url_for('store_detail', id=store['id']) }}" class="btn btn-outline-primary btn-sm">View Store</a>
+                </div>
+            </div>
+        </div>
+        {% else %}
+        <div class="col-12">
+            <p class="text-muted">No popular stores to show right now.</p>
+        </div>
+        {% endfor %}
+    </div>
+
+{% endblock %}
