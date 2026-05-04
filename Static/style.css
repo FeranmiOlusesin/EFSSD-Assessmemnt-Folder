@@ -1,0 +1,147 @@
+/* Global styles / Bootstrap Overrides */
+
+body {
+    background: linear-gradient(120deg, #f8f9fa 60%, #e0e7ef 100%);
+    color: #212529;
+    font-family: 'Segoe UI', 'Roboto', Arial, sans-serif;
+    min-height: 100vh;
+}
+
+/* Main content area */
+#main-content {
+    background-color: rgba(255,255,255,0.95);
+    padding: 32px 30px 30px 30px;
+    border-radius: 16px 0 0 16px;
+    margin-top: 24px;
+    box-shadow: 0 2px 16px rgba(0,0,0,0.07);
+}
+
+/* Sidebar */
+#sidebar {
+    background-color: rgba(30, 30, 30, 0.08);
+    padding: 24px 20px;
+    border-radius: 0 16px 16px 0;
+    margin-top: 24px;
+    box-shadow: 0 2px 12px rgba(0,0,0,0.04);
+}
+
+/* No Border Radius for Main Content and Sidebar on Mobile */
+@media (max-width: 768px) {
+    #main-content, #sidebar {
+        border-radius: 0;
+        margin-top: 0;
+        box-shadow: none;
+    }
+}
+
+/* Card Styles */
+.card {
+    border-radius: 14px;
+    box-shadow: 0 2px 10px rgba(0,0,0,0.06);
+    border: none;
+    transition: transform 0.12s;
+    background: #fff;
+}
+.card:hover {
+    transform: translateY(-4px) scale(1.02);
+    box-shadow: 0 4px 24px rgba(0,0,0,0.10);
+}
+
+/* Buttons */
+.btn-primary, .btn-success, .btn-outline-primary, .btn-outline-secondary {
+    border-radius: 8px;
+    font-weight: 500;
+    letter-spacing: 0.02em;
+}
+.btn-success {
+    background: linear-gradient(90deg, #1e7e34 60%, #28a745 100%);
+    border: none;
+}
+.btn-primary {
+    background: linear-gradient(90deg, #0052cc 60%, #007bff 100%);
+    border: none;
+}
+.btn-outline-primary:hover, .btn-outline-secondary:hover {
+    background: #f0f8ff;
+}
+
+/* Headings */
+h1, h2, h3, h4, h5 {
+    font-family: 'Montserrat', 'Segoe UI', Arial, sans-serif;
+    font-weight: 700;
+    color: #1a2a3a;
+}
+
+/* Product and Store Images */
+.card-img-top, .img-thumbnail, .img-fluid {
+    border-radius: 10px;
+    object-fit: cover;
+    max-height: 220px;
+}
+
+/* Badges */
+.badge {
+    font-size: 0.95em;
+    padding: 0.5em 0.8em;
+    border-radius: 6px;
+    background: linear-gradient(90deg, #fbb034 60%, #ffdd00 100%);
+    color: #222;
+    font-weight: 600;
+}
+
+/* Table Styles */
+.table {
+    border-radius: 10px;
+    overflow: hidden;
+    background: #fff;
+}
+.table th {
+    background: #f7f7fa;
+    color: #1a2a3a;
+    font-weight: 600;
+}
+.table-striped > tbody > tr:nth-of-type(odd) {
+    background-color: #f3f6fa;
+}
+
+/* Alerts */
+.alert-info {
+    background: #e7f3ff;
+    color: #0c5460;
+    border: none;
+    border-radius: 8px;
+}
+
+/* Footer */
+footer {
+    color: #888;
+    width: 100%;
+    background: #222;
+    padding: 18px 0 10px 0;
+    border-top-left-radius: 16px;
+    border-top-right-radius: 16px;
+    margin-top: 40px;
+    font-size: 1em;
+    text-align: center;
+}
+
+/* Custom for African theme */
+.african-theme {
+    background: linear-gradient(120deg, #fbb034 60%, #ffdd00 100%);
+    color: #222;
+    border-radius: 8px;
+    padding: 8px 16px;
+    font-weight: 700;
+    letter-spacing: 0.03em;
+    margin-bottom: 12px;
+}
+
+/* Responsive tweaks */
+@media (max-width: 576px) {
+    .card-img-top, .img-thumbnail, .img-fluid {
+        max-height: 140px;
+    }
+    .d-grid.col-8 {
+        grid-template-columns: 1fr;
+    }
+}
