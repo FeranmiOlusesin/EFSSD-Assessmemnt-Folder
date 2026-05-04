@@ -1,0 +1,34 @@
+{% extends "base.html" %}
+
+{% block content %}
+
+    {% if session['user_id'] == store_user %}
+        <a href="{{ url_for('edit_product', id=product['id']) }}" class="btn btn-primary mb-3 float-end">Edit Product</a>
+    {% endif %}
+
+    <h1>{{ product['name'] }}</h1>
+    <hr>
+    
+    <div class="row g-3">
+        <!-- Product Image Column -->
+        <div class="col-md-5 d-flex align-items-center justify-content-center">
+            <img src="{{ product['image_url'] }}" alt="Image for {{ product['name'] }}" class="img-fluid rounded shadow-sm">
+        </div>
+        <!-- Product Details Column -->
+        <div class="col-md-7">
+            <div class="card h-100">
+                <div class="card-body">
+                    <h5 class="card-title">{{ product['name'] }}</h5>
+                    <div class="badge text-bg-secondary mb-2">{{ product['category'] }}</div>
+                    <div class="mb-2 text-muted small">Store: {{ product['store_name'] }}</div>
+                    <div class="mb-2"><strong>£{{ product['price'] }}</strong></div>
+                    <p class="card-text">{{ product['description'] }}</p>
+                    <hr>
+                    <a href="{{ url_for('add_to_cart', id=product['id']) }}" class="btn btn-success">Add to Cart</a>
+                    <a href="{{ url_for('product_list') }}" class="btn btn-outline-secondary ms-2">Back to Products</a>
+                </div>
+            </div>
+        </div>
+    </div>
+
+{% endblock %}
