@@ -24,7 +24,6 @@
                     <div class="mb-2"><strong>£{{ product['price'] }}</strong></div>
                     <p class="card-text">{{ product['description'] }}</p>
                     <hr>
-                    <a href="{{ url_for('add_to_cart', id=product['id']) }}" class="btn btn-success">Add to Cart</a>
                     <a href="{{ url_for('product_list') }}" class="btn btn-outline-secondary ms-2">Back to Products</a>
                 </div>
             </div>

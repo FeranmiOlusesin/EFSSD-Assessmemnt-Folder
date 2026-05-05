@@ -10,7 +10,6 @@
             <img src="{{ user['profile_picture'] or url_for('static', filename='default_profile.png') }}" alt="Profile Picture" class="img-thumbnail mb-3" style="max-width: 200px;">
             <h4>{{ user['full_name'] }}</h4>
             <p class="text-muted">{{ user['email'] }}</p>
-            <a href="{{ url_for('edit_profile') }}" class="btn btn-outline-primary btn-sm mt-2">Edit Profile</a>
         </div>
         <div class="col-md-8">
             <div class="card mb-3">
@@ -47,3 +46,5 @@
             </div>
         </div>
     </div>
+
+{% endblock %}

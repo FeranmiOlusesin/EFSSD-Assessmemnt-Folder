@@ -26,8 +26,10 @@ def validate_login(username, password):
     Replace this stub with your actual implementation or import.
     """
     # Example stub: Replace with actual DB query
+    from werkzeug.security import check_password_hash
+    
     user = get_user_by_username(username)
-    if user and user['password'] == password:
+    if user and check_password_hash(user['password'], password):
         return user
     return None
 
