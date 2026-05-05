@@ -37,7 +37,7 @@ CREATE TABLE categories (
 
 CREATE TABLE stores (
     id                  INTEGER PRIMARY KEY AUTOINCREMENT,
-    owner_id            INTEGER NOT NULL REFERENCES users(id),
+    owner_id            INTEGER NOT NULL REFERENCES users(id) ON DELETE CASCADE,
     name                TEXT NOT NULL,
     description         TEXT,
     address             TEXT,
@@ -108,3 +108,16 @@ CREATE TABLE reviews (
     comment     TEXT,
     created     TIMESTAMP DEFAULT CURRENT_TIMESTAMP
 );
+
+-- Delete reviews by the user
+DELETE FROM reviews WHERE reviewer_id = ?;
+
+-- Delete orders by the user
+DELETE FROM orders WHERE customer_id = ?;
+
+-- Delete stores owned by the user (and their products, inventory, etc. as needed)
+DELETE FROM stores WHERE owner_id = ?;
+
+-- Finally, delete the user
+DELETE FROM users WHERE id = 1;
+

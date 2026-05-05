@@ -1,12 +1,12 @@
 import sqlite3
+import os
 
-DATABASE = 'database.db'
-
-def get_db():
-    """Open a connection to the database."""
-    connection = sqlite3.connect(DATABASE)
-    connection.row_factory = sqlite3.Row  # Allows accessing columns by name
-    return connection
+def get_db_connection():
+    BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
+    db_path = os.path.join(BASE_DIR, 'db', 'database.db')
+    conn = sqlite3.connect(db_path)
+    conn.row_factory = sqlite3.Row
+    return conn
 
 
 # ════════════════════════════════════════════════════════
@@ -15,7 +15,7 @@ def get_db():
 
 def get_user_by_username(username):
     """Fetch a single user by their username."""
-    connection = get_db()
+    connection = get_db_connection()
     user = connection.execute(
         "SELECT * FROM users WHERE username = ?", (username,)
     ).fetchone()
@@ -25,7 +25,7 @@ def get_user_by_username(username):
 
 def get_user_by_id(user_id):
     """Fetch a single user by their ID."""
-    connection = get_db()
+    connection = get_db_connection()
     user = connection.execute(
         "SELECT * FROM users WHERE id = ?", (user_id,)
     ).fetchone()
@@ -35,7 +35,7 @@ def get_user_by_id(user_id):
 
 def create_user(username, hashed_password, full_name, email, phone, uk_postcode, role='customer'):
     """Insert a new user into the database."""
-    connection = get_db()
+    connection = get_db_connection()
     try:
         connection.execute(
             "INSERT INTO users (username, password, full_name, email, phone, role, uk_postcode) VALUES (?, ?, ?, ?, ?, ?, ?)",
@@ -50,13 +50,24 @@ def create_user(username, hashed_password, full_name, email, phone, uk_postcode,
         connection.close()
 
 
+def delete_user(user_id):
+    """Delete a user and all associated data."""
+    conn = get_db_connection()
+    conn.execute('DELETE FROM reviews WHERE reviewer_id = ?', (user_id,))
+    conn.execute('DELETE FROM orders WHERE customer_id = ?', (user_id,))
+    conn.execute('DELETE FROM stores WHERE owner_id = ?', (user_id,))
+    conn.execute('DELETE FROM users WHERE id = ?', (user_id,))
+    conn.commit()
+    conn.close()
+
+
 # ════════════════════════════════════════════════════════
 # STORES
 # ════════════════════════════════════════════════════════
 
 def get_all_stores():
     """Fetch all verified stores."""
-    connection = get_db()
+    connection = get_db_connection()
     stores = connection.execute(
         "SELECT stores.*, users.full_name AS owner_name FROM stores JOIN users ON stores.owner_id = users.id WHERE stores.is_verified = 1"
     ).fetchall()
@@ -66,7 +77,7 @@ def get_all_stores():
 
 def get_store_by_id(store_id):
     """Fetch a single store by its ID."""
-    connection = get_db()
+    connection = get_db_connection()
     store = connection.execute(
         "SELECT stores.*, users.full_name AS owner_name FROM stores JOIN users ON stores.owner_id = users.id WHERE stores.id = ?",
         (store_id,)
@@ -77,7 +88,7 @@ def get_store_by_id(store_id):
 
 def get_stores_by_owner(owner_id):
     """Fetch all stores belonging to a specific owner."""
-    connection = get_db()
+    connection = get_db_connection()
     stores = connection.execute(
         "SELECT * FROM stores WHERE owner_id = ?", (owner_id,)
     ).fetchall()
@@ -87,7 +98,7 @@ def get_stores_by_owner(owner_id):
 
 def create_store(owner_id, name, description, address, uk_postcode, delivers_nationwide=0):
     """Insert a new store into the database."""
-    connection = get_db()
+    connection = get_db_connection()
     connection.execute(
         "INSERT INTO stores (owner_id, name, description, address, uk_postcode, delivers_nationwide) VALUES (?, ?, ?, ?, ?, ?)",
         (owner_id, name, description, address, uk_postcode, delivers_nationwide)
@@ -102,7 +113,7 @@ def create_store(owner_id, name, description, address, uk_postcode, delivers_nat
 
 def get_all_products():
     """Fetch all in-stock products with their category and origin info."""
-    connection = get_db()
+    connection = get_db_connection()
     products = connection.execute(
         """
         SELECT products.*,
@@ -126,7 +137,7 @@ def get_all_products():
 
 def get_product_by_id(product_id):
     """Fetch a single product with full details."""
-    connection = get_db()
+    connection = get_db_connection()
     product = connection.execute(
         """
         SELECT products.*,
@@ -150,7 +161,7 @@ def get_product_by_id(product_id):
 
 def get_products_by_store(store_id):
     """Fetch all products listed by a specific store."""
-    connection = get_db()
+    connection = get_db_connection()
     products = connection.execute(
         """
         SELECT products.*,
@@ -171,7 +182,7 @@ def get_products_by_store(store_id):
 
 def get_products_by_category(category_slug):
     """Fetch all in-stock products in a given category."""
-    connection = get_db()
+    connection = get_db_connection()
     products = connection.execute(
         """
         SELECT products.*,
@@ -195,7 +206,7 @@ def get_products_by_category(category_slug):
 
 def get_products_by_origin(country):
     """Fetch all in-stock products from a specific African country."""
-    connection = get_db()
+    connection = get_db_connection()
     products = connection.execute(
         """
         SELECT products.*,
@@ -219,7 +230,7 @@ def get_products_by_origin(country):
 
 def search_products(query):
     """Search products by name or description using a keyword."""
-    connection = get_db()
+    connection = get_db_connection()
     like_query = f"%{query}%"
     products = connection.execute(
         """
@@ -244,7 +255,7 @@ def search_products(query):
 
 def create_product(store_id, category_id, origin_id, name, description, price_gbp, unit, image, in_stock=1):
     """Insert a new product into the database."""
-    connection = get_db()
+    connection = get_db_connection()
     connection.execute(
         "INSERT INTO products (store_id, category_id, origin_id, name, description, price_gbp, unit, image, in_stock) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)",
         (store_id, category_id, origin_id, name, description, price_gbp, unit, image, in_stock)
@@ -255,7 +266,7 @@ def create_product(store_id, category_id, origin_id, name, description, price_gb
 
 def update_product_stock(product_id, in_stock):
     """Toggle a product's in_stock status (1 = in stock, 0 = out of stock)."""
-    connection = get_db()
+    connection = get_db_connection()
     connection.execute(
         "UPDATE products SET in_stock = ? WHERE id = ?",
         (in_stock, product_id)
@@ -270,7 +281,7 @@ def update_product_stock(product_id, in_stock):
 
 def get_all_categories():
     """Fetch all product categories."""
-    connection = get_db()
+    connection = get_db_connection()
     categories = connection.execute(
         "SELECT * FROM categories ORDER BY name ASC"
     ).fetchall()
@@ -280,7 +291,7 @@ def get_all_categories():
 
 def get_all_origins():
     """Fetch all countries of origin."""
-    connection = get_db()
+    connection = get_db_connection()
     origins = connection.execute(
         "SELECT * FROM origins ORDER BY country ASC"
     ).fetchall()
@@ -294,7 +305,7 @@ def get_all_origins():
 
 def create_order(customer_id, store_id, subtotal_gbp, delivery_fee_gbp, total_gbp, delivery_address, uk_postcode):
     """Insert a new order and return its ID."""
-    connection = get_db()
+    connection = get_db_connection()
     cursor = connection.execute(
         """
         INSERT INTO orders (customer_id, store_id, subtotal_gbp, delivery_fee_gbp, total_gbp, delivery_address, uk_postcode)
@@ -310,7 +321,7 @@ def create_order(customer_id, store_id, subtotal_gbp, delivery_fee_gbp, total_gb
 
 def add_order_item(order_id, product_id, quantity, unit_price_gbp):
     """Insert a single item into an order."""
-    connection = get_db()
+    connection = get_db_connection()
     connection.execute(
         "INSERT INTO order_items (order_id, product_id, quantity, unit_price_gbp) VALUES (?, ?, ?, ?)",
         (order_id, product_id, quantity, unit_price_gbp)
@@ -321,7 +332,7 @@ def add_order_item(order_id, product_id, quantity, unit_price_gbp):
 
 def get_orders_by_customer(customer_id):
     """Fetch all orders placed by a customer, newest first."""
-    connection = get_db()
+    connection = get_db_connection()
     orders = connection.execute(
         """
         SELECT orders.*, stores.name AS store_name
@@ -338,7 +349,7 @@ def get_orders_by_customer(customer_id):
 
 def get_order_by_id(order_id):
     """Fetch a single order with its full details."""
-    connection = get_db()
+    connection = get_db_connection()
     order = connection.execute(
         """
         SELECT orders.*, stores.name AS store_name,
@@ -356,7 +367,7 @@ def get_order_by_id(order_id):
 
 def get_order_items(order_id):
     """Fetch all items within a specific order."""
-    connection = get_db()
+    connection = get_db_connection()
     items = connection.execute(
         """
         SELECT order_items.*,
@@ -375,7 +386,7 @@ def get_order_items(order_id):
 
 def update_order_status(order_id, status):
     """Update the status of an order."""
-    connection = get_db()
+    connection = get_db_connection()
     connection.execute(
         "UPDATE orders SET status = ? WHERE id = ?",
         (status, order_id)
@@ -386,7 +397,7 @@ def update_order_status(order_id, status):
 
 def get_orders_by_store(store_id):
     """Fetch all orders received by a store, newest first."""
-    connection = get_db()
+    connection = get_db_connection()
     orders = connection.execute(
         """
         SELECT orders.*, users.full_name AS customer_name
@@ -407,7 +418,7 @@ def get_orders_by_store(store_id):
 
 def get_reviews_for_product(product_id):
     """Fetch all reviews for a specific product."""
-    connection = get_db()
+    connection = get_db_connection()
     reviews = connection.execute(
         """
         SELECT reviews.*, users.username AS reviewer_username
@@ -424,7 +435,7 @@ def get_reviews_for_product(product_id):
 
 def get_reviews_for_store(store_id):
     """Fetch all reviews for a specific store."""
-    connection = get_db()
+    connection = get_db_connection()
     reviews = connection.execute(
         """
         SELECT reviews.*, users.username AS reviewer_username
@@ -441,7 +452,7 @@ def get_reviews_for_store(store_id):
 
 def create_review(reviewer_id, rating, comment, product_id=None, store_id=None):
     """Insert a new review for a product or a store."""
-    connection = get_db()
+    connection = get_db_connection()
     connection.execute(
         "INSERT INTO reviews (reviewer_id, product_id, store_id, rating, comment) VALUES (?, ?, ?, ?, ?)",
         (reviewer_id, product_id, store_id, rating, comment)
@@ -452,7 +463,7 @@ def create_review(reviewer_id, rating, comment, product_id=None, store_id=None):
 
 def get_average_rating_for_product(product_id):
     """Calculate the average star rating for a product."""
-    connection = get_db()
+    connection = get_db_connection()
     result = connection.execute(
         "SELECT ROUND(AVG(rating), 1) AS avg_rating, COUNT(*) AS total FROM reviews WHERE product_id = ?",
         (product_id,)
@@ -467,7 +478,7 @@ def get_average_rating_for_product(product_id):
 
 def get_delivery_zones_for_store(store_id):
     """Fetch all delivery zones configured for a store."""
-    connection = get_db()
+    connection = get_db_connection()
     zones = connection.execute(
         "SELECT * FROM delivery_zones WHERE store_id = ?", (store_id,)
     ).fetchall()
@@ -477,10 +488,11 @@ def get_delivery_zones_for_store(store_id):
 
 def check_delivery_available(store_id, uk_postcode_prefix):
     """Check if a store delivers to a given postcode prefix (e.g. 'E1', 'SW2')."""
-    connection = get_db()
+    connection = get_db_connection()
     zone = connection.execute(
         "SELECT * FROM delivery_zones WHERE store_id = ? AND uk_postcode_prefix = ?",
         (store_id, uk_postcode_prefix)
     ).fetchone()
     connection.close()
     return zone  # Returns the zone row if found, or None if not available
+

@@ -1,7 +1,23 @@
 from flask import Flask, render_template, url_for, request, flash, redirect, session
 from flask_wtf import CSRFProtect
 from flask_wtf.csrf import generate_csrf
+from werkzeug.security import generate_password_hash
 from db.db import *
+import os
+
+# Import get_db_connection if not already imported
+try:
+    from db.db import get_db_connection
+except ImportError:
+    # Stub for get_db_connection if not defined in db.db
+    import sqlite3
+    def get_db_connection():
+        import sqlite3
+        BASE_DIR = os.path.dirname(os.path.abspath(__file__))
+        db_path = os.path.join(BASE_DIR, 'db', 'database.db')
+        conn = sqlite3.connect(db_path)
+        conn.row_factory = sqlite3.Row
+        return conn
 
 # Stub for validate_login if not already defined in db.db
 def validate_login(username, password):
@@ -136,9 +152,10 @@ def contact():
 # Product List
 @app.route('/products')
 def product_list():
-    products = get_all_products()
-    store_user = session.get('user_id')
-    return render_template('product_list.html', title="All Products", products=products, store_user=store_user)
+    conn = get_db_connection()
+    products = conn.execute('SELECT * FROM products').fetchall()
+    conn.close()
+    return render_template('product_list.html', products=products)
 
 # Product Detail
 @app.route('/product/<int:id>')
@@ -226,6 +243,11 @@ def register():
         username = request.form['username']
         password = request.form['password']
         repassword = request.form['repassword']
+        full_name = request.form['full_name']
+        email = request.form['email']
+        phone = request.form['phone']
+        uk_postcode = request.form['uk_postcode']
+        role = 'customer'  # or get from form if needed
         error = None
         if not username:
             error = 'Username is required!'
@@ -236,7 +258,7 @@ def register():
         if get_user_by_username(username):
             error = 'Username already exists! Please choose a different one.'
         if error is None:
-            create_user(username, password)
+            create_user(username, password, full_name, email, phone, uk_postcode, role)
             flash(category='success', message=f"Registration successful! Welcome {username}!")
             return redirect(url_for('login'))
         else:
@@ -274,7 +296,44 @@ def logout():
     flash(category='info', message='You have been logged out.')
     return redirect(url_for('index'))
 
+
+
+@app.route('/create_product', methods=['GET', 'POST'])
+def create_product():
+    if request.method == 'POST':
+        name = request.form['name']
+        description = request.form['description']
+        category = request.form['category']
+        price = request.form['price']
+        image_url = request.form['image_url']
+        store_id = session.get('user_id')  # Adjust if you have a different way to get store/user
+
+        conn = get_db_connection()
+        conn.execute(
+            'INSERT INTO products (name, description, category, price, image_url, store_id) VALUES (?, ?, ?, ?, ?, ?)',
+            (name, description, category, price, image_url, store_id)
+        )
+        conn.commit()
+        conn.close()
+        flash('Product created successfully!', 'success')
+        return redirect(url_for('product_list'))
+    return render_template('create_product.html', title="Add New Product")
+
+
+
 if __name__ == '__main__':
     print("Starting Flask application...")
     print("Open Your Application in Your Browser: http://localhost:81")
     app.run(host='0.0.0.0', port=81, debug=True)
+
+# Hand-code your admin credentials
+# admin_username = 'admin'
+# admin_password = generate_password_hash('password')  # Make sure to hash the password!
+# admin_full_name = 'Admin User'
+# admin_email = 'admin@example.com'
+# admin_phone = '07000000000'
+# admin_role = 'admin'
+# admin_postcode = 'E1 6RF'
+
+# Create the admin user
+# create_user(admin_username, admin_password, admin_full_name, admin_email, admin_phone, admin_postcode, role=admin_role)
