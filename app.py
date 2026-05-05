@@ -157,7 +157,14 @@ def product_list():
     conn = get_db_connection()
     products = conn.execute('SELECT * FROM products').fetchall()
     conn.close()
-    return render_template('product_list.html', products=products)
+    # Check if current user is admin
+    is_admin = False
+    if session.get('user_id'):
+        user = get_user_by_id(session['user_id'])
+        if user and user['role'] == 'admin':
+            is_admin = True
+    
+    return render_template('product_list.html', products=products, is_admin=is_admin)
 
 # Product Detail
 @app.route('/product/<int:id>')
