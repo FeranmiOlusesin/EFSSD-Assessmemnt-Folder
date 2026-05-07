@@ -12,7 +12,7 @@
         {% for store in stores %}
         <div class="col-sm-6 col-lg-4">
             <div class="card h-100">
-                <img src="{{ store['image_url'] or url_for('static', filename='default_store.png') }}" class="card-img-top" alt="{{ store['name'] }}">
+                <img src="{{ store['image'] or url_for('static', filename='default_store.png') }}" class="card-img-top" alt="{{ store['name'] }}">
                 <div class="card-body">
                     <h5 class="card-title">{{ store['name'] }}</h5>
                     <div class="badge text-bg-secondary mb-2">{{ store['category'] }}</div>

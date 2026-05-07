@@ -26,7 +26,7 @@
                     <!-- Product Image Columns -->
                     <div class="col-4 col-sm-12 col-xl-4 bg-secondary-subtle d-flex align-items-center justify-content-center">
                         <a href="{{ url_for('product_detail', id=product['id']) }}">
-                            <img src="{{ product['image_url'] }}" alt="Image for {{ product['name'] }}" class="img-fluid">
+                            <img src="{{ product['image'] }}" alt="Image for {{ product['name'] }}" class="img-fluid">
                         </a>
                     </div>
                     <!-- Product Details Columns -->
@@ -35,7 +35,7 @@
                             <h5 class="card-title">{{ product['name'] }}</h5>
                             <p class="card-text mb-1">{{ product['description'] }}</p>
                             <div class="badge text-bg-secondary mb-2">{{ product['category'] }}</div>
-                            <div class="mb-2"><strong>£{{ product['price'] }}</strong></div>
+                            <div class="mb-2"><strong>£{{ product['price_gbp'] }}</strong></div>
                             <div class="mb-2 text-muted small">Store: {{ product['store_name'] }}</div>
                             <a href="{{ url_for('product_detail', id=product['id']) }}" class="btn btn-sm btn-outline-secondary">View Details</a>  
                         </div>

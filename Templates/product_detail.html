@@ -11,7 +11,7 @@
 
 <div class="row g-3">
     <div class="col-md-5 d-flex align-items-center justify-content-center">
-        <img src="{{ product['image_url'] }}" alt="Image for {{ product['name'] }}" class="img-fluid rounded shadow-sm">
+        <img src="{{ product['image'] }}" alt="Image for {{ product['name'] }}" class="img-fluid rounded shadow-sm">
     </div>
     <div class="col-md-7">
         <div class="card h-100">
@@ -19,7 +19,7 @@
                 <h5 class="card-title">{{ product['name'] }}</h5>
                 <div class="badge text-bg-secondary mb-2">{{ product['category'] }}</div>
                 <div class="mb-2 text-muted small">Store: {{ product['store_name'] }}</div>
-                <div class="mb-2"><strong>£{{ product['price'] }}</strong></div>
+                <div class="mb-2"><strong>£{{ product['price_gbp'] }}</strong></div>
                 <p class="card-text">{{ product['description'] }}</p>
                 <hr>
                 <a href="{{ url_for('product_list') }}" class="btn btn-outline-secondary ms-2">Back to Products</a>

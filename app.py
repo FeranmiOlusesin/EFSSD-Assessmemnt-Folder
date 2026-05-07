@@ -1,3 +1,5 @@
+from email.mime import image
+from itertools import product
 from flask import Flask, render_template, url_for, request, flash, redirect, session
 from flask_wtf import CSRFProtect
 from flask_wtf.csrf import generate_csrf
@@ -206,7 +208,7 @@ def store_detail(id):
 @app.route('/cart', methods=['GET', 'POST'])
 def cart():
     cart_items = get_cart_items(session.get('user_id'))
-    cart_total = sum(item['price'] * item['quantity'] for item in cart_items) if cart_items else 0
+    cart_total = sum(item['price_gbp'] * item['quantity'] for item in cart_items) if cart_items else 0
     return render_template('cart.html', title="Your Cart", cart_items=cart_items, cart_total=cart_total)
 
 # Add to Cart
@@ -236,7 +238,7 @@ def remove_from_cart(product_id):
 @app.route('/checkout', methods=['GET', 'POST'])
 def checkout():
     cart_items = get_cart_items(session.get('user_id'))
-    cart_total = sum(item['price'] * item['quantity'] for item in cart_items) if cart_items else 0
+    cart_total = sum(item['price_gbp'] * item['quantity'] for item in cart_items) if cart_items else 0
     if request.method == 'POST':
         # Process order here (save order, send confirmation, etc.)
         flash(category='success', message='Order placed successfully!')
@@ -324,14 +326,14 @@ def create_product():
         name = request.form['name']
         description = request.form['description']
         category = request.form['category']
-        price = request.form['price']
-        image_url = request.form['image_url']
+        price_gbp = request.form['price_gbp']
+        image = request.form['image']
         store_id = session.get('user_id')  # Adjust if you have a different way to get store/user
 
         conn = get_db_connection()
         conn.execute(
-            'INSERT INTO products (name, description, category, price, image_url, store_id) VALUES (?, ?, ?, ?, ?, ?)',
-            (name, description, category, price, image_url, store_id)
+            'INSERT INTO products (name, description, category, price_gbp, image, store_id) VALUES (?, ?, ?, ?, ?, ?)',
+            (name, description, category, price_gbp, image, store_id)
         )
         conn.commit()
         conn.close()
@@ -345,29 +347,30 @@ def update_product(id):
 
     # Get product data
    product = get_product_by_id(id)
+   categories = get_all_categories()
 
    if request.method == 'POST':
        # Get updated data from the form
        name = request.form['name']
        description = request.form['description']
-       category = request.form['category']
-       price = request.form['price']
+       category = request.form['category_id']
+       price_gbp = request.form['price_gbp']
        unit = request.form['unit']
-       image_url = request.form['image_url']
+       image = request.form['image']
        in_stock = request.form.get('in_stock', 0)
 
        # Update product in the database
        conn = get_db_connection()
        conn.execute(
            'UPDATE products SET name = ?, description = ?, category_id = ?, price_gbp = ?, unit = ?, image = ?, in_stock = ? WHERE id = ?',
-           (name, description, category, price, unit, image_url, in_stock, id)
+           (name, description, category, price_gbp, unit, image, in_stock, id)
        )
        conn.commit()
        conn.close()
        flash('Product updated successfully!', 'success')
        return redirect(url_for('product_detail', id=id))
 
-   return render_template('update_product.html', title="Update Product", product=product)
+   return render_template('update_product.html', title="Update Product", product=product, categories=categories)
 
 if __name__ == '__main__':
     print("Starting Flask application...")
