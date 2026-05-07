@@ -2,9 +2,9 @@
 
 {% block content %}
 
-   {% if session.get('user_id') and session.get('user_id') == product.get('user') %}
-    <a href="{{ url_for('update', id=product['id']) }}" class="btn btn-primary mb-3 float-end">Edit</a>
-{% endif %}
+{% if is_admin %}
+        <a href="{{ url_for('update_product', id=product['id']) }}" class="btn btn-primary mb-3 float-end">Edit</a>
+    {% endif %}
 
 <h1>{{ product['name'] }}</h1>
 <hr>

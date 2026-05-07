@@ -123,6 +123,17 @@ siteName = "AfroGrocer"
 def inject_site_name():
     return dict(siteName=siteName)
 
+@app.context_processor
+def inject_user_role():
+    is_admin = False
+
+    if session.get('user_id'):
+        user = get_user_by_id(session['user_id'])
+        if user and user['role'] == 'admin':
+            is_admin = True
+
+    return dict(is_admin=is_admin)
+
 # Home Page
 @app.route('/')
 def index():
@@ -330,7 +341,7 @@ def create_product():
 
 # Edit A Product Page
 @app.route('/update/<int:id>/', methods=('GET', 'POST'))
-def update(id):
+def update_product(id):
 
     # Get product data
    product = get_product_by_id(id)
