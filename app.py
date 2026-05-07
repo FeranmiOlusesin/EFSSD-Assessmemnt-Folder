@@ -328,7 +328,35 @@ def create_product():
         return redirect(url_for('product_list'))
     return render_template('create_product.html', title="Add New Product")
 
+# Edit A Product Page
+@app.route('/update/<int:id>/', methods=('GET', 'POST'))
+def update(id):
 
+    # Get product data
+   product = get_product_by_id(id)
+
+   if request.method == 'POST':
+       # Get updated data from the form
+       name = request.form['name']
+       description = request.form['description']
+       category = request.form['category']
+       price = request.form['price']
+       unit = request.form['unit']
+       image_url = request.form['image_url']
+       in_stock = request.form.get('in_stock', 0)
+
+       # Update product in the database
+       conn = get_db_connection()
+       conn.execute(
+           'UPDATE products SET name = ?, description = ?, category_id = ?, price_gbp = ?, unit = ?, image = ?, in_stock = ? WHERE id = ?',
+           (name, description, category, price, unit, image_url, in_stock, id)
+       )
+       conn.commit()
+       conn.close()
+       flash('Product updated successfully!', 'success')
+       return redirect(url_for('product_detail', id=id))
+
+   return render_template('update_product.html', title="Update Product", product=product)
 
 if __name__ == '__main__':
     print("Starting Flask application...")

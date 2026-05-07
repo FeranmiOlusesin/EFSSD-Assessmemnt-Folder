@@ -263,6 +263,29 @@ def create_product(store_id, category_id, origin_id, name, description, price_gb
     connection.commit()
     connection.close()
 
+def update_product(product_id, name, description, category_id, price_gbp, unit, image, in_stock):
+    """Update an existing product."""
+
+    connection = get_db_connection()
+
+    connection.execute(
+         """
+            UPDATE products
+            SET name = ?,
+                description = ?,
+                category_id = ?,
+                price_gbp = ?,
+                unit = ?,
+                image = ?,
+                in_stock = ?
+            WHERE id = ?
+            """,
+        (name, description, category_id, price_gbp, unit, image, in_stock, product_id)
+    )
+
+    connection.commit()
+    connection.close()
+
 
 def update_product_stock(product_id, in_stock):
     """Toggle a product's in_stock status (1 = in stock, 0 = out of stock)."""
