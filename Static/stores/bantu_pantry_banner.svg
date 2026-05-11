@@ -1,0 +1,13 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="560" height="280" viewBox="0 0 560 280">
+  <defs>
+    <linearGradient id="bpBg" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0%" style="stop-color:#5b21b6"/>
+      <stop offset="100%" style="stop-color:#312e81"/>
+    </linearGradient>
+  </defs>
+  <rect width="560" height="280" fill="url(#bpBg)"/>
+  <polygon points="420,205 395,248 455,238" fill="#fbbf24" opacity=".9"/>
+  <rect x="105" y="62" width="350" height="158" rx="14" fill="#fdf4ff" opacity=".95"/>
+  <text x="280" y="120" fill="#3b0764" font-family="Segoe UI,sans-serif" font-size="21" font-weight="700" text-anchor="middle">Bantu Pantry Birmingham</text>
+  <text x="280" y="150" fill="#6b7280" font-family="Segoe UI,sans-serif" font-size="13" text-anchor="middle">Hands " East &amp; Southern African speciality foods</text>
+</svg>

@@ -42,6 +42,11 @@ CREATE TABLE stores (
     description         TEXT,
     address             TEXT,
     uk_postcode         TEXT,
+    phone               TEXT,
+    email               TEXT,
+    category            TEXT DEFAULT 'African groceries',
+    image               TEXT,          -- storefront / hero URL or static path under /static/
+    logo                TEXT,          -- square logo URL or static path
     delivers_nationwide BOOLEAN DEFAULT 0,
     is_verified         BOOLEAN DEFAULT 0,
     created             TIMESTAMP DEFAULT CURRENT_TIMESTAMP
@@ -109,15 +114,8 @@ CREATE TABLE reviews (
     created     TIMESTAMP DEFAULT CURRENT_TIMESTAMP
 );
 
--- Delete reviews by the user
-DELETE FROM reviews WHERE reviewer_id = ?;
-
--- Delete orders by the user
-DELETE FROM orders WHERE customer_id = ?;
-
--- Delete stores owned by the user (and their products, inventory, etc. as needed)
-DELETE FROM stores WHERE owner_id = ?;
-
--- Finally, delete the user
-DELETE FROM users WHERE id = 1;
-
+-- Example delete order for app code / SQL consoles (commented — not runnable as-is without values):
+-- DELETE FROM reviews WHERE reviewer_id = ?;
+-- DELETE FROM orders WHERE customer_id = ?;
+-- DELETE FROM stores WHERE owner_id = ?;
+-- DELETE FROM users WHERE id = ?;

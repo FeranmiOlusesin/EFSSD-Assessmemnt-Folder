@@ -2,64 +2,71 @@
 
 {% block content %}
 
-    <h1>Checkout</h1>
-    <hr>
+    <h1 class="mb-3">Checkout</h1>
 
     {% if cart_items and cart_items|length > 0 %}
         <div class="mb-4">
-            <h4>Order Summary</h4>
-            <ul class="list-group mb-3">
+            <h2 class="h5">Order summary</h2>
+            <ul class="list-group list-group-flush border rounded overflow-hidden mb-4">
                 {% for item in cart_items %}
-                <li class="list-group-item d-flex justify-content-between align-items-center">
-                    <div>
-                        <strong>{{ item.name }}</strong> <br>
-                        <small class="text-muted">{{ item.store_name }}</small>
-                        <span class="badge bg-secondary ms-2">{{ item.quantity }} x £{{ "%.2f"|format(item.price) }}</span>
+                <li class="list-group-item d-flex justify-content-between align-items-start gap-2 flex-wrap">
+                    <div class="flex-grow-1">
+                        <strong>{{ item.name }}</strong>
+                        <span class="d-block small text-muted">{{ item.store_name }}</span>
+                        <span class="badge bg-secondary mt-1">{{ item.quantity }} × £{{ "%.2f"|format(item.price) }}</span>
                     </div>
-                    <span>£{{ "%.2f"|format(item.price * item.quantity) }}</span>
+                    <span class="text-nowrap fw-semibold">£{{ "%.2f"|format(item.price * item.quantity) }}</span>
                 </li>
                 {% endfor %}
-                <li class="list-group-item d-flex justify-content-between">
-                    <strong>Total</strong>
-                    <strong>£{{ "%.2f"|format(cart_total) }}</strong>
+                <li class="list-group-item d-flex justify-content-between fw-bold bg-light">
+                    <span>Total</span>
+                    <span>£{{ "%.2f"|format(cart_total) }}</span>
                 </li>
             </ul>
         </div>
 
-        <form action="{{ url_for('process_checkout') }}" method="post">
-            <h4>Delivery Information</h4>
-            <div class="mb-3">
-                <label for="full_name" class="form-label">Full Name</label>
-                <input type="text" class="form-control" id="full_name" name="full_name" required>
+        <hr class="my-4">
+
+        <form action="{{ url_for('checkout') }}" method="post" class="row g-3 w-100 m-0 pb-5">
+            <input type="hidden" name="csrf_token" value="{{ csrf_token }}">
+
+            <div class="col-12"><h2 class="h5 mb-0">Delivery details</h2></div>
+
+            <div class="col-12 col-lg-6">
+                <label for="full_name" class="form-label">Full name</label>
+                <input type="text" class="form-control" id="full_name" name="full_name" required autocomplete="name">
             </div>
-            <div class="mb-3">
-                <label for="address" class="form-label">Delivery Address</label>
-                <textarea class="form-control" id="address" name="address" rows="2" required></textarea>
+            <div class="col-12 col-lg-6">
+                <label for="phone" class="form-label">Phone</label>
+                <input type="tel" class="form-control" id="phone" name="phone" required autocomplete="tel">
             </div>
-            <div class="mb-3">
-                <label for="phone" class="form-label">Phone Number</label>
-                <input type="tel" class="form-control" id="phone" name="phone" required>
+            <div class="col-12">
+                <label for="address" class="form-label">Delivery address</label>
+                <textarea class="form-control" id="address" name="address" rows="3" required></textarea>
             </div>
-            <div class="mb-3">
-                <label for="email" class="form-label">Email Address</label>
-                <input type="email" class="form-control" id="email" name="email" required>
+            <div class="col-12 col-lg-8">
+                <label for="email" class="form-label">Email</label>
+                <input type="email" class="form-control" id="email" name="email" required autocomplete="email">
             </div>
 
-            <h4 class="mt-4">Payment Method</h4>
-            <div class="mb-3">
-                <select class="form-select" name="payment_method" required>
-                    <option value="">Select payment method</option>
-                    <option value="card">Credit/Debit Card</option>
+            <div class="col-12 mt-3"><h2 class="h5 mb-0">Payment</h2></div>
+            <div class="col-12 col-md-8 col-lg-6">
+                <label class="form-label" for="payment_method">Method</label>
+                <select class="form-select" id="payment_method" name="payment_method" required>
+                    <option value="">Choose…</option>
+                    <option value="card">Card</option>
                     <option value="paypal">PayPal</option>
-                    <option value="cash">Cash on Delivery</option>
+                    <option value="cash">Cash on delivery</option>
                 </select>
             </div>
 
-            <button type="submit" class="btn btn-success btn-lg mt-2 w-100">Place Order</button>
+            <div class="col-12 mt-4">
+                <button type="submit" class="btn btn-success btn-lg px-5">Place order</button>
+            </div>
         </form>
     {% else %}
-        <div class="alert alert-info">
-            Your cart is empty. <a href="{{ url_for('product_list') }}">Browse products</a> to get started!
+        <div class="alert alert-info mb-0">
+            Your cart is empty. <a href="{{ url_for('product_list') }}">Browse products</a> first.
         </div>
     {% endif %}
 

@@ -1,11 +1,11 @@
-# Test data for the African grocery app
+# Test data for the African grocery app — UK-style fictitious store details for coursework
 
 users_data = [
     {
         'username': 'admin',
         'password': 'password',
         'full_name': 'Admin User',
-        'email': 'admin@afromart.com',
+        'email': 'admin@afrogrocer.com',
         'phone': '07700000000',
         'role': 'admin',
         'uk_postcode': 'E1 6RF'
@@ -14,16 +14,52 @@ users_data = [
         'username': 'mama_tolu',
         'password': 'password',
         'full_name': 'Toluwani Adeyemi',
-        'email': 'tolu@afromart.com',
+        'email': 'toluwani@mamatolus.co.uk',
         'phone': '07711111111',
         'role': 'store_owner',
         'uk_postcode': 'N17 8QT'
     },
     {
+        'username': 'nduka_trade',
+        'password': 'password',
+        'full_name': 'Nduka Okonkwo',
+        'email': 'hello@ndukatrade.uk',
+        'phone': '07733334444',
+        'role': 'store_owner',
+        'uk_postcode': 'SE15 4UJ'
+    },
+    {
+        'username': 'adwoa_shop',
+        'password': 'password',
+        'full_name': 'Adwoa Mensah',
+        'email': 'welcome@goldenplantain.co.uk',
+        'phone': '07735556666',
+        'role': 'store_owner',
+        'uk_postcode': 'E8 4PH'
+    },
+    {
+        'username': 'bantu_birmingham',
+        'password': 'password',
+        'full_name': 'Thabo Sibanda',
+        'email': 'info@bantubirmingham.uk',
+        'phone': '07737778888',
+        'role': 'store_owner',
+        'uk_postcode': 'B18 7SU'
+    },
+    {
+        'username': 'manchester_yam',
+        'password': 'password',
+        'full_name': 'Grace Okafor',
+        'email': 'orders@manchesteryamcorner.co.uk',
+        'phone': '07738889999',
+        'role': 'store_owner',
+        'uk_postcode': 'M14 7LR'
+    },
+    {
         'username': 'kofi_gh',
         'password': 'password',
         'full_name': 'Kofi Mensah',
-        'email': 'kofi@afromart.com',
+        'email': 'kofi.customer@example.com',
         'phone': '07722222222',
         'role': 'customer',
         'uk_postcode': 'SW2 1RZ'
@@ -56,16 +92,92 @@ stores_data = [
     {
         'owner_username': 'mama_tolu',
         'name': "Mama Tolu's African Kitchen",
-        'description': 'Authentic West African groceries delivered across London.',
-        'address': '14 High Road, Tottenham, London',
+        'description': (
+            'Family-run Tottenham favourite for West African ingredients: garri and semolina, '
+            'palm oil, smoked fish and spices. Serving home cooks across North London.'
+        ),
+        'address': '245 High Rd, Tottenham, London',
         'uk_postcode': 'N17 8QT',
+        'phone': '020 8885 4421',
+        'email': 'hello@mamatolus.co.uk',
+        'category': 'West African groceries',
+        'image': 'stores/mama_tolukitchen_banner.svg',
+        'logo': 'stores/mama_tolukitchen_logo.svg',
         'delivers_nationwide': 0,
         'is_verified': 1
-    }
+    },
+    {
+        'owner_username': 'nduka_trade',
+        'name': 'Nduka Trade & Imports (Peckham)',
+        'description': (
+            'Nigerian and Ghanaian dry goods on Rye Lane: stockfish, tins, biscuit drinks, '
+            'and seasonal produce for the South London diaspora.'
+        ),
+        'address': 'Unit 14, Peckham Arcade, 143 Rye Ln, Peckham',
+        'uk_postcode': 'SE15 4UJ',
+        'phone': '020 7234 8890',
+        'email': 'shop@ndukatrade.uk',
+        'category': 'West African & Caribbean groceries',
+        'image': 'stores/nduka_trade_banner.svg',
+        'logo': 'stores/nduka_trade_logo.svg',
+        'delivers_nationwide': 0,
+        'is_verified': 1
+    },
+    {
+        'owner_username': 'adwoa_shop',
+        'name': 'Golden Plantain Supermarket',
+        'description': (
+            'Hackney Afro-Caribbean staples: ripe plantains, yam, Scotch bonnet peppers, frozen '
+            'tilapia and weekend kitchen essentials.'
+        ),
+        'address': '412 Mare St, Hackney',
+        'uk_postcode': 'E8 4PH',
+        'phone': '020 7729 5543',
+        'email': 'info@goldenplantain.co.uk',
+        'category': 'Afro-Caribbean groceries',
+        'image': 'stores/golden_plantain_banner.svg',
+        'logo': 'stores/golden_plantain_logo.svg',
+        'delivers_nationwide': 0,
+        'is_verified': 1
+    },
+    {
+        'owner_username': 'bantu_birmingham',
+        'name': 'Bantu Pantry Birmingham',
+        'description': (
+            'East & Southern African dry goods — injera flour, Kenyan tea, peri-peri marinades '
+            'and speciality snacks shipped from Birmingham to the Midlands.'
+        ),
+        'address': '27 Soho Rd, Handsworth',
+        'uk_postcode': 'B18 7SU',
+        'phone': '0121 551 2288',
+        'email': 'orders@bantubirmingham.uk',
+        'category': 'East & Southern African foods',
+        'image': 'stores/bantu_pantry_banner.svg',
+        'logo': 'stores/bantu_pantry_logo.svg',
+        'delivers_nationwide': 1,
+        'is_verified': 1
+    },
+    {
+        'owner_username': 'manchester_yam',
+        'name': 'Yam Corner Manchester',
+        'description': (
+            'Fallowfield grocer known for Nigerian yams, fresh greens and weekend plantain crisps '
+            '— popular with students and families alike.'
+        ),
+        'address': '156 Wilmslow Rd, Rusholme',
+        'uk_postcode': 'M14 7LR',
+        'phone': '0161 225 9931',
+        'email': 'hello@manchesteryamcorner.co.uk',
+        'category': 'West African fresh & dry foods',
+        'image': 'stores/yam_corner_banner.svg',
+        'logo': 'stores/yam_corner_logo.svg',
+        'delivers_nationwide': 0,
+        'is_verified': 1
+    },
 ]
 
 products_data = [
-    # Grains & Tubers
+    # Grains & Tubers — all from Mama Tolu's (existing catalogue)
     {
         'store_name': "Mama Tolu's African Kitchen",
         'category_slug': 'grains-tubers',
@@ -99,7 +211,6 @@ products_data = [
         'image': 'yellow_garri.jpg',
         'in_stock': 1
     },
-    # Spices & Seasonings
     {
         'store_name': "Mama Tolu's African Kitchen",
         'category_slug': 'spices-seasonings',
@@ -122,7 +233,6 @@ products_data = [
         'image': 'country_onions.jpg',
         'in_stock': 1
     },
-    # Frozen Meat & Fish
     {
         'store_name': "Mama Tolu's African Kitchen",
         'category_slug': 'frozen-meat-fish',
@@ -145,7 +255,6 @@ products_data = [
         'image': 'tilapia.jpg',
         'in_stock': 0
     },
-    # Beverages
     {
         'store_name': "Mama Tolu's African Kitchen",
         'category_slug': 'beverages',
@@ -157,7 +266,6 @@ products_data = [
         'image': 'malta_guinness.jpg',
         'in_stock': 1
     },
-    # Cooking Oils & Pastes
     {
         'store_name': "Mama Tolu's African Kitchen",
         'category_slug': 'oils-pastes',

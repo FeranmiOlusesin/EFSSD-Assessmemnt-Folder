@@ -1,0 +1,5 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="160" height="160" viewBox="0 0 160 160">
+  <circle cx="80" cy="80" r="76" fill="#15803d"/>
+  <ellipse cx="80" cy="85" rx="48" ry="68" transform="rotate(8 80 85)" fill="#d97706"/>
+  <text x="80" y="132" fill="#ecfdf5" font-family="Segoe UI,sans-serif" font-size="13" font-weight="700" text-anchor="middle">YC</text>
+</svg>

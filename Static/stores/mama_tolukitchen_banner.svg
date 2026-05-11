@@ -1,0 +1,15 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="560" height="280" viewBox="0 0 560 280" role="img" aria-labelledby="title">
+  <title id="title">Mama Tolu's African Kitchen storefront illustration</title>
+  <defs>
+    <linearGradient id="mtkBg" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" style="stop-color:#1f3d20"/>
+      <stop offset="100%" style="stop-color:#2d662e"/>
+    </linearGradient>
+  </defs>
+  <rect width="560" height="280" fill="url(#mtkBg)"/>
+  <rect x="100" y="60" width="360" height="160" rx="12" fill="#fffdf8" opacity=".95"/>
+  <rect x="132" y="160" width="80" height="44" rx="4" fill="#c45c26"/>
+  <circle cx="300" cy="104" r="36" fill="#fde68a" opacity=".9"/>
+  <text x="280" y="128" fill="#162016" font-family="Segoe UI,Source Sans Pro,sans-serif" font-size="22" font-weight="700" text-anchor="middle">Mama Tolu's African Kitchen</text>
+  <text x="280" y="154" fill="#4a5749" font-family="Segoe UI,Source Sans Pro,sans-serif" font-size="13" text-anchor="middle">West African groceries " Tottenham " London</text>
+</svg>

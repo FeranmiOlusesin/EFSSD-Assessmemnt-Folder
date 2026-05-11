@@ -10,6 +10,30 @@ def get_db_connection():
     return conn
 
 
+def migrate_stores_schema():
+    """Add newer columns to `stores` when using an older database file."""
+    connection = get_db_connection()
+    try:
+        cols = {row[1] for row in connection.execute('PRAGMA table_info(stores)').fetchall()}
+        specs = (
+            ('phone', 'TEXT'),
+            ('email', 'TEXT'),
+            ('category', 'TEXT'),
+            ('image', 'TEXT'),
+            ('logo', 'TEXT'),
+        )
+        for col, ctype in specs:
+            if col not in cols:
+                try:
+                    connection.execute(f'ALTER TABLE stores ADD COLUMN {col} {ctype}')
+                except sqlite3.OperationalError as ex:
+                    if 'duplicate column' not in str(ex).lower():
+                        raise
+        connection.commit()
+    finally:
+        connection.close()
+
+
 # ════════════════════════════════════════════════════════
 # USERS
 # ════════════════════════════════════════════════════════
@@ -45,10 +69,20 @@ def create_user(username, hashed_password, full_name, email, phone, uk_postcode,
         connection.commit()
         return True
     except sqlite3.IntegrityError:
-        # Username or email already exists
+        # Username or email already exists (or constraint failure)
         return False
     finally:
         connection.close()
+
+
+def update_user_password(user_id, hashed_password):
+    """Replace stored password hash (used after login migration from legacy plaintext)."""
+    connection = get_db_connection()
+    connection.execute(
+        "UPDATE users SET password = ? WHERE id = ?", (hashed_password, user_id)
+    )
+    connection.commit()
+    connection.close()
 
 
 def delete_user(user_id):
@@ -66,12 +100,17 @@ def delete_user(user_id):
 # STORES
 # ════════════════════════════════════════════════════════
 
-def get_all_stores():
-    """Fetch all verified stores."""
+def get_all_stores(verified_only=True):
+    """Fetch stores; default is verified-only for the public directory."""
     connection = get_db_connection()
-    stores = connection.execute(
-        "SELECT stores.*, users.full_name AS owner_name FROM stores JOIN users ON stores.owner_id = users.id WHERE stores.is_verified = 1"
-    ).fetchall()
+    sql = (
+        "SELECT stores.*, users.full_name AS owner_name "
+        "FROM stores JOIN users ON stores.owner_id = users.id "
+    )
+    if verified_only:
+        sql += "WHERE stores.is_verified = 1 "
+    sql += "ORDER BY stores.name"
+    stores = connection.execute(sql).fetchall()
     connection.close()
     return stores
 
@@ -97,13 +136,85 @@ def get_stores_by_owner(owner_id):
     return stores
 
 
-def create_store(owner_id, name, description, address, uk_postcode, delivers_nationwide=0):
-    """Insert a new store into the database."""
+def get_users_who_can_own_stores():
+    """Users eligible to appear as shop owners (admins may also own listings)."""
     connection = get_db_connection()
-    connection.execute(
-        "INSERT INTO stores (owner_id, name, description, address, uk_postcode, delivers_nationwide) VALUES (?, ?, ?, ?, ?, ?)",
-        (owner_id, name, description, address, uk_postcode, delivers_nationwide)
+    rows = connection.execute(
+        """SELECT id, username, full_name, role FROM users
+           WHERE role IN ('store_owner', 'admin')
+           ORDER BY username"""
+    ).fetchall()
+    connection.close()
+    return rows
+
+
+def create_store(
+    owner_id,
+    name,
+    description,
+    address,
+    uk_postcode,
+    delivers_nationwide=0,
+    is_verified=1,
+    phone='',
+    email='',
+    category='African groceries',
+    image='',
+    logo='',
+):
+    """Insert a new store listing."""
+    connection = get_db_connection()
+    cursor = connection.execute(
+        """
+        INSERT INTO stores (
+            owner_id, name, description, address, uk_postcode, phone, email, category,
+            image, logo, delivers_nationwide, is_verified
+        )
+        VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+        """,
+        (
+            owner_id,
+            name,
+            description,
+            address,
+            uk_postcode,
+            phone,
+            email,
+            category,
+            image,
+            logo,
+            int(bool(delivers_nationwide)),
+            int(bool(is_verified)),
+        ),
     )
+    sid = cursor.lastrowid
+    connection.commit()
+    connection.close()
+    return sid
+
+
+def update_store(store_id, **fields):
+    """
+    Patch store fields present in kwargs. Typical keys mirror create_store minus owner_id isolation.
+    """
+    allowed = {
+        'owner_id', 'name', 'description', 'address', 'uk_postcode', 'phone', 'email',
+        'category', 'image', 'logo', 'delivers_nationwide', 'is_verified',
+    }
+    updates = {k: v for k, v in fields.items() if k in allowed}
+    if not updates:
+        return
+    cols = sorted(updates.keys())
+    place = ','.join(f'{c} = ?' for c in cols)
+    values = []
+    for c in cols:
+        v = updates[c]
+        if c in ('delivers_nationwide', 'is_verified'):
+            v = int(bool(v))
+        values.append(v)
+    values.append(store_id)
+    connection = get_db_connection()
+    connection.execute(f'UPDATE stores SET {place} WHERE id = ?', tuple(values))
     connection.commit()
     connection.close()
 

@@ -1,0 +1,13 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="560" height="280" viewBox="0 0 560 280">
+  <defs>
+    <linearGradient id="ycBg" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" style="stop-color:#166534"/>
+      <stop offset="100%" style="stop-color:#14532d"/>
+    </linearGradient>
+  </defs>
+  <rect width="560" height="280" fill="url(#ycBg)"/>
+  <ellipse cx="400" cy="165" rx="90" ry="130" transform="rotate(12 400 165)" fill="#a8a29e" opacity=".45"/>
+  <rect x="95" y="58" width="370" height="165" rx="14" fill="#ecfdf5" opacity=".94"/>
+  <text x="280" y="120" fill="#064e3b" font-family="Segoe UI,sans-serif" font-size="24" font-weight="800" text-anchor="middle">Yam Corner Manchester</text>
+  <text x="280" y="150" fill="#047857" font-family="Segoe UI,sans-serif" font-size="14" text-anchor="middle">Wilmslow Road &#8226; Nigerian yams &amp; greens</text>
+</svg>

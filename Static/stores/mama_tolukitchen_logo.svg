@@ -1,0 +1,7 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="160" height="160" viewBox="0 0 160 160" role="img" aria-labelledby="t">
+  <title id="t">Mama Tolu's African Kitchen logo</title>
+  <circle cx="80" cy="80" r="76" fill="#234823"/>
+  <circle cx="80" cy="80" r="66" fill="none" stroke="#fde68a" stroke-width="4"/>
+  <text x="80" y="92" fill="#fde68a" font-family="Segoe UI,Source Sans Pro,sans-serif" font-size="28" font-weight="700" text-anchor="middle">MT</text>
+  <text x="80" y="118" fill="#c8f5c9" font-family="Segoe UI,Source Sans Pro,sans-serif" font-size="9" text-anchor="middle">KITCHEN</text>
+</svg>

@@ -1,0 +1,6 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="560" height="280" viewBox="0 0 560 280">
+  <rect width="560" height="280" fill="#e5e7eb"/>
+  <rect x="120" y="70" width="320" height="140" rx="10" fill="#f9fafb" stroke="#9ca3af" stroke-width="2"/>
+  <rect x="250" y="140" width="60" height="70" rx="4" fill="#c45c26"/>
+  <text x="280" y="120" fill="#4b5563" font-family="Segoe UI,sans-serif" font-size="16" font-weight="600" text-anchor="middle">Store image placeholder</text>
+</svg>

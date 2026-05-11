@@ -1,9 +1,10 @@
 from email.mime import image
 from itertools import product
+from datetime import datetime
 from flask import Flask, render_template, url_for, request, flash, redirect, session
 from flask_wtf import CSRFProtect
 from flask_wtf.csrf import generate_csrf
-from werkzeug.security import generate_password_hash
+from werkzeug.security import generate_password_hash, check_password_hash
 from db.db import *
 import os
 
@@ -21,18 +22,45 @@ except ImportError:
         conn.row_factory = sqlite3.Row
         return conn
 
-# Stub for validate_login if not already defined in db.db
+def _looks_like_passlib_hash(stored_pw):
+    s = stored_pw.strip() if isinstance(stored_pw, str) else ''
+    return s.startswith(('pbkdf2:', 'scrypt:', 'argon2'))
+
+
 def validate_login(username, password):
-    """
-    Validates user credentials.
-    Replace this stub with your actual implementation or import.
-    """
-    # Example stub: Replace with actual DB query
-    from werkzeug.security import check_password_hash
-    
-    user = get_user_by_username(username)
-    if user and check_password_hash(user['password'], password):
-        return user
+    """Verify password against Werkzeug hash; upgrade legacy plaintext passwords once."""
+    if not username:
+        return None
+    uname = username.strip()
+    user = get_user_by_username(uname)
+    if not user:
+        return None
+    stored = user['password']
+    if isinstance(stored, bytes):
+        stored = stored.decode('utf-8', errors='replace')
+    if stored is None or not str(stored).strip():
+        return None
+
+    stored = stored.strip()
+    pw_plain = '' if password is None else password
+
+    try:
+        if check_password_hash(stored, pw_plain):
+            return user
+    except (ValueError, TypeError):
+        pass
+
+    # Legacy rows where plaintext was stored — verify then save a real hash once
+    if not _looks_like_passlib_hash(stored):
+        try:
+            from hmac import compare_digest
+            if compare_digest(stored, pw_plain):
+                new_hash = generate_password_hash(pw_plain, method='pbkdf2:sha256')
+                update_user_password(user['id'], new_hash)
+                return get_user_by_id(user['id'])
+        except (TypeError, AttributeError):
+            pass
+
     return None
 
 # Stub for get_cart_items if not already defined in db.db
@@ -105,11 +133,43 @@ def get_popular_stores(limit=6):
     # Example stub: Replace with actual DB query
     return get_all_stores()[:limit]
 
-app = Flask(__name__)
+_APP_DIR = os.path.dirname(os.path.abspath(__file__))
+app = Flask(__name__, static_folder=os.path.join(_APP_DIR, 'Static'), static_url_path='/static')
 ALLOWED_IMAGE_EXTENSIONS = {'png', 'jpg', 'jpeg', 'gif', 'webp'}
 UPLOADS_PATH = "."
 app.secret_key = 'your_secret_key'
 csrf = CSRFProtect(app)
+migrate_stores_schema()
+
+
+@app.template_global()
+def resolve_store_image(path):
+    """Map DB value to usable URL — external link or Flask static path; default storefront placeholder."""
+    if path and str(path).strip():
+        p = str(path).strip()
+        if p.startswith(('http://', 'https://')):
+            return p
+        return url_for('static', filename=p.lstrip('/'))
+    return url_for('static', filename='stores/placeholder-shop.svg')
+
+
+@app.template_global()
+def resolve_store_logo(path):
+    if not path or not str(path).strip():
+        return None
+    p = str(path).strip()
+    if p.startswith(('http://', 'https://')):
+        return p
+    return url_for('static', filename=p.lstrip('/'))
+
+
+def user_can_manage_store(store, user):
+    if not store or not user:
+        return False
+    if user['role'] == 'admin':
+        return True
+    return user['role'] == 'store_owner' and store['owner_id'] == user['id']
+
 
 @app.context_processor
 def inject_csrf_token():
@@ -124,6 +184,11 @@ siteName = "AfroGrocer"
 @app.context_processor
 def inject_site_name():
     return dict(siteName=siteName)
+
+
+@app.context_processor
+def inject_current_year():
+    return dict(current_year=datetime.now().year)
 
 @app.context_processor
 def inject_user_role():
@@ -191,8 +256,131 @@ def product_detail(id):
 # Store List
 @app.route('/stores')
 def store_list():
-    stores = get_all_stores()
-    return render_template('store_list.html', title="Stores", stores=stores)
+    uid = session.get('user_id')
+    user = get_user_by_id(uid) if uid else None
+    is_admin = bool(user and user['role'] == 'admin')
+    stores = get_all_stores(verified_only=True)
+    return render_template('store_list.html', title="Stores", stores=stores, is_admin=is_admin)
+
+
+@app.route('/stores/create', methods=('GET', 'POST'))
+def store_add():
+    uid = session.get('user_id')
+    user = get_user_by_id(uid) if uid else None
+    if not user or user['role'] != 'admin':
+        flash(category='danger', message='Only an administrator can add new stores.')
+        return redirect(url_for('store_list'))
+
+    owners = get_users_who_can_own_stores()
+    if request.method == 'POST':
+        if not owners:
+            flash(category='danger', message='No eligible owner accounts.')
+            return redirect(url_for('store_add'))
+        name = request.form.get('name', '').strip()
+        description = request.form.get('description', '').strip()
+        address = request.form.get('address', '').strip()
+        uk_postcode = request.form.get('uk_postcode', '').strip()
+        category = request.form.get('category', '').strip()
+        phone = request.form.get('phone', '').strip()
+        email = request.form.get('email', '').strip()
+        image = request.form.get('image', '').strip()
+        logo = request.form.get('logo', '').strip()
+        delivers = 1 if request.form.get('delivers') else 0
+        is_verified = 1 if request.form.get('is_verified') else 0
+        try:
+            owner_id = int(request.form['owner_id'])
+        except (KeyError, ValueError):
+            flash(category='danger', message='Pick a valid store owner.')
+            return redirect(url_for('store_add'))
+        sid = create_store(
+            owner_id,
+            name,
+            description,
+            address,
+            uk_postcode,
+            delivers_nationwide=delivers,
+            is_verified=is_verified,
+            phone=phone,
+            email=email,
+            category=category or 'African groceries',
+            image=image,
+            logo=logo,
+        )
+        flash(category='success', message=f'Store "{name}" has been created.')
+        return redirect(url_for('store_detail', id=sid))
+
+    return render_template(
+        'store_form.html',
+        title='Add store',
+        store=None,
+        owners=owners,
+        is_edit=False,
+        submit_label='Create store',
+        user_role='admin',
+    )
+
+
+@app.route('/store/<int:sid>/edit', methods=('GET', 'POST'))
+def store_edit(sid):
+    store = get_store_by_id(sid)
+    if not store:
+        flash(category='warning', message='Store not found.')
+        return redirect(url_for('store_list'))
+
+    uid = session.get('user_id')
+    user = get_user_by_id(uid) if uid else None
+    if not user_can_manage_store(store, user):
+        flash(category='danger', message='You do not have permission to edit this store.')
+        return redirect(url_for('store_list'))
+
+    owners = get_users_who_can_own_stores() if user['role'] == 'admin' else []
+
+    if request.method == 'POST':
+        name = request.form.get('name', '').strip()
+        description = request.form.get('description', '').strip()
+        address = request.form.get('address', '').strip()
+        uk_postcode = request.form.get('uk_postcode', '').strip()
+        category = request.form.get('category', '').strip()
+        phone = request.form.get('phone', '').strip()
+        email = request.form.get('email', '').strip()
+        image = request.form.get('image', '').strip()
+        logo = request.form.get('logo', '').strip()
+        delivers = 1 if request.form.get('delivers') else 0
+
+        fields = {
+            'name': name,
+            'description': description,
+            'address': address,
+            'uk_postcode': uk_postcode,
+            'category': category or 'African groceries',
+            'phone': phone,
+            'email': email,
+            'image': image,
+            'logo': logo,
+            'delivers_nationwide': delivers,
+        }
+        if user['role'] == 'admin':
+            try:
+                fields['owner_id'] = int(request.form['owner_id'])
+            except (KeyError, ValueError):
+                flash(category='danger', message='Invalid owner selection.')
+                return redirect(url_for('store_edit', sid=sid))
+            fields['is_verified'] = 1 if request.form.get('is_verified') else 0
+
+        update_store(sid, **fields)
+        flash(category='success', message='Store details updated.')
+        return redirect(url_for('store_detail', id=sid))
+
+    return render_template(
+        'store_form.html',
+        title='Edit store',
+        store=store,
+        owners=owners,
+        is_edit=True,
+        submit_label='Save changes',
+        user_role=user['role'],
+    )
+
 
 # Store Detail
 @app.route('/store/<int:id>')
@@ -201,8 +389,17 @@ def store_detail(id):
     if not store:
         flash(category='warning', message='Store not found!')
         return redirect(url_for('store_list'))
+    uid = session.get('user_id')
+    user = get_user_by_id(uid) if uid else None
+    can_manage_store = user_can_manage_store(store, user)
     products = get_products_by_store(id)
-    return render_template('store_detail.html', title=store['name'], store=store, products=products)
+    return render_template(
+        'store_detail.html',
+        title=store['name'],
+        store=store,
+        products=products,
+        can_manage_store=can_manage_store,
+    )
 
 # Cart Page
 @app.route('/cart', methods=['GET', 'POST'])
@@ -262,28 +459,38 @@ def profile():
 @app.route('/register/', methods=('GET', 'POST'))
 def register():
     if request.method == 'POST':
-        username = request.form['username']
-        password = request.form['password']
-        repassword = request.form['repassword']
-        full_name = request.form['full_name']
-        email = request.form['email']
-        phone = request.form['phone']
-        uk_postcode = request.form['uk_postcode']
-        role = 'customer'  # or get from form if needed
+        username = request.form.get('username', '').strip()
+        password = request.form.get('password', '')
+        repassword = request.form.get('repassword', '')
+        full_name = request.form.get('full_name', '').strip()
+        email = request.form.get('email', '').strip()
+        phone = request.form.get('phone', '').strip()
+        uk_postcode = request.form.get('uk_postcode', '').strip()
+        role = 'customer'
         error = None
         if not username:
             error = 'Username is required!'
+        elif not full_name.strip():
+            error = 'Full name is required!'
+        elif not email:
+            error = 'Email is required!'
+        elif not uk_postcode:
+            error = 'UK postcode is required!'
         elif not password or not repassword:
             error = 'Password is required!'
         elif password != repassword:
             error = 'Passwords do not match!'
-        if get_user_by_username(username):
+        elif get_user_by_username(username):
             error = 'Username already exists! Please choose a different one.'
         if error is None:
-            create_user(username, password, full_name, email, phone, uk_postcode, role)
-            flash(category='success', message=f"Registration successful! Welcome {username}!")
-            return redirect(url_for('login'))
-        else:
+            # Explicit algorithm so hashing is never ambiguous across Werkzeug versions
+            password_hash = generate_password_hash(password, method='pbkdf2:sha256')
+            if not create_user(username, password_hash, full_name, email, phone, uk_postcode, role):
+                error = 'Could not register — that username or email may already exist.'
+            else:
+                flash(category='success', message=f"Registration successful! Welcome {username}!")
+                return redirect(url_for('login'))
+        if error is not None:
             flash(category='danger', message=f"Registration failed: {error}")
     return render_template('register.html', title="Register")
 
@@ -291,23 +498,25 @@ def register():
 @app.route('/login/', methods=('GET', 'POST'))
 def login():
     if request.method == 'POST':
-        username = request.form['username']
-        password = request.form['password']
+        username = request.form.get('username', '').strip()
+        password = request.form.get('password', '')
         error = None
+        user = None
         if not username:
             error = 'Username is required!'
         elif not password:
             error = 'Password is required!'
-        user = validate_login(username, password) if error is None else None
-        if user is None:
-            error = 'Invalid username or password!'
-        if error is None:
+        else:
+            user = validate_login(username, password)
+            if user is None:
+                error = 'Invalid username or password!'
+        if error is None and user is not None:
             session.clear()
             session['user_id'] = user['id']
             session['username'] = user['username']
             flash(category='success', message=f"Login successful! Welcome back {username}!")
             return redirect(url_for('index'))
-        else:
+        elif error is not None:
             flash(category='danger', message=f"Login failed: {error}")
     return render_template('login.html', title="Log In")
 

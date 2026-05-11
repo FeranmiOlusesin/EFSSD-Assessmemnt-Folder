@@ -2,43 +2,44 @@
 
 {% block content %}
 
-    <h1>Your Shopping Cart</h1>
-    <hr>
+    <h1 class="h2 mb-3">Your cart</h1>
 
     {% if cart_items and cart_items|length > 0 %}
         <div class="table-responsive">
-            <table class="table align-middle">
+            <table class="table align-middle table-striped">
                 <thead>
                     <tr>
                         <th scope="col">Product</th>
                         <th scope="col">Store</th>
                         <th scope="col">Price</th>
-                        <th scope="col">Quantity</th>
+                        <th scope="col">Qty</th>
                         <th scope="col">Subtotal</th>
-                        <th scope="col"></th>
+                        <th scope="col"><span class="visually-hidden">Remove</span></th>
                     </tr>
                 </thead>
                 <tbody>
                     {% for item in cart_items %}
                     <tr>
                         <td>
-                            <a href="{{ url_for('product_detail', id=item.product_id) }}">
-                                <img src="{{ item.image }}" alt="{{ item.name }}" width="60" class="me-2">
+                            <a href="{{ url_for('product_detail', id=item.product_id) }}" class="text-decoration-none text-dark">
+                                <img src="{{ item.image }}" alt="" width="56" height="56" class="rounded me-2 align-middle" style="object-fit: cover;">
                                 {{ item.name }}
                             </a>
                         </td>
                         <td>{{ item.store_name }}</td>
                         <td>£{{ "%.2f"|format(item.price) }}</td>
                         <td>
-                            <form action="{{ url_for('update_cart', product_id=item.product_id) }}" method="post" class="d-inline">
-                                <input type="number" name="quantity" value="{{ item.quantity }}" min="1" class="form-control form-control-sm d-inline-block" style="width:70px;">
-                                <button type="submit" class="btn btn-sm btn-outline-secondary ms-1">Update</button>
+                            <form action="{{ url_for('update_cart', product_id=item.product_id) }}" method="post" class="d-flex flex-wrap align-items-center gap-1">
+                                <input type="hidden" name="csrf_token" value="{{ csrf_token }}">
+                                <input type="number" name="quantity" value="{{ item.quantity }}" min="1" class="form-control form-control-sm" style="width:4.5rem;" aria-label="Quantity for {{ item.name }}">
+                                <button type="submit" class="btn btn-sm btn-outline-secondary">Update</button>
                             </form>
                         </td>
                         <td>£{{ "%.2f"|format(item.price * item.quantity) }}</td>
                         <td>
                             <form action="{{ url_for('remove_from_cart', product_id=item.product_id) }}" method="post">
-                                <button type="submit" class="btn btn-sm btn-danger">Remove</button>
+                                <input type="hidden" name="csrf_token" value="{{ csrf_token }}">
+                                <button type="submit" class="btn btn-sm btn-outline-danger">Remove</button>
                             </form>
                         </td>
                     </tr>
@@ -46,13 +47,13 @@
                 </tbody>
             </table>
         </div>
-        <div class="text-end">
-            <h4>Total: £{{ "%.2f"|format(cart_total) }}</h4>
-            <a href="{{ url_for('checkout') }}" class="btn btn-success btn-lg mt-2">Proceed to Checkout</a>
+        <div class="d-flex flex-column align-items-end gap-2 pt-2">
+            <p class="h4 mb-0">Total: £{{ "%.2f"|format(cart_total) }}</p>
+            <a href="{{ url_for('checkout') }}" class="btn btn-brand btn-lg">Go to checkout</a>
         </div>
     {% else %}
-        <div class="alert alert-info">
-            Your cart is empty. <a href="{{ url_for('product_list') }}">Browse products</a> to get started!
+        <div class="alert alert-info mb-0">
+            Your cart is empty. <a href="{{ url_for('product_list') }}">Browse products</a> to add items.
         </div>
     {% endif %}
 

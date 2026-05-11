@@ -1,0 +1,14 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="560" height="280" viewBox="0 0 560 280">
+  <defs>
+    <linearGradient id="ndBg" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0%" style="stop-color:#1e3a5f"/>
+      <stop offset="100%" style="stop-color:#0f2744"/>
+    </linearGradient>
+  </defs>
+  <rect width="560" height="280" fill="url(#ndBg)"/>
+  <rect x="90" y="55" width="380" height="170" rx="14" fill="#fff8ee" opacity=".94"/>
+  <text x="280" y="120" fill="#14324e" font-family="Segoe UI,sans-serif" font-size="21" font-weight="700" text-anchor="middle">Nduka Trade &amp; Imports</text>
+  <text x="280" y="148" fill="#5c6775" font-family="Segoe UI,sans-serif" font-size="14" text-anchor="middle">Peckham " Nigerian &amp; Ghanaian goods</text>
+  <rect x="200" y="175" width="160" height="36" rx="6" fill="#c45c26"/>
+  <text x="280" y="198" fill="#fff" font-family="Segoe UI,sans-serif" font-size="12" font-weight="600" text-anchor="middle">London SE15</text>
+</svg>

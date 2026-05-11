@@ -1,14 +1,15 @@
+import os
 import sqlite3
 from werkzeug.security import generate_password_hash
 from test_data import users_data, origins_data, categories_data, stores_data, products_data
 
-# This script should be run once to set up the database schema and initial data
+BASE_DIR = os.path.dirname(os.path.abspath(__file__))
+DB_PATH = os.path.join(BASE_DIR, 'database.db')
+SCHEMA_PATH = os.path.join(BASE_DIR, 'schema.sql')
 
-# Database will be created in the same directory as this script
-connection = sqlite3.connect('database.db')
+connection = sqlite3.connect(DB_PATH)
 
-# Open and execute schema.sql to create all tables
-with open('schema.sql') as f:
+with open(SCHEMA_PATH, encoding='utf-8') as f:
     connection.executescript(f.read())
 
 cur = connection.cursor()
@@ -19,7 +20,7 @@ for user in users_data:
         "INSERT INTO users (username, password, full_name, email, phone, role, uk_postcode) VALUES (?, ?, ?, ?, ?, ?, ?)",
         (
             user['username'],
-            generate_password_hash(user['password']),
+            generate_password_hash(user['password'], method='pbkdf2:sha256'),
             user['full_name'],
             user['email'],
             user['phone'],
@@ -44,34 +45,43 @@ for category in categories_data:
 
 # ── Insert stores ────────────────────────────────────────────────
 for store in stores_data:
-    # Look up the owner's ID by their username
     cur.execute("SELECT id FROM users WHERE username = ?", (store['owner_username'],))
     owner = cur.fetchone()
+    if not owner:
+        raise RuntimeError(f"No owner user: {store['owner_username']}")
 
     cur.execute(
-        "INSERT INTO stores (owner_id, name, description, address, uk_postcode, delivers_nationwide, is_verified) VALUES (?, ?, ?, ?, ?, ?, ?)",
+        """
+        INSERT INTO stores (
+            owner_id, name, description, address, uk_postcode, phone, email, category,
+            image, logo, delivers_nationwide, is_verified
+        )
+        VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+        """,
         (
             owner[0],
             store['name'],
             store['description'],
             store['address'],
             store['uk_postcode'],
-            store['delivers_nationwide'],
-            store['is_verified']
+            store.get('phone', ''),
+            store.get('email', ''),
+            store.get('category', 'African groceries'),
+            store.get('image', ''),
+            store.get('logo', ''),
+            store.get('delivers_nationwide', 0),
+            store.get('is_verified', 1),
         )
     )
 
 # ── Insert products ──────────────────────────────────────────────
 for product in products_data:
-    # Look up the store ID by name
     cur.execute("SELECT id FROM stores WHERE name = ?", (product['store_name'],))
     store = cur.fetchone()
 
-    # Look up the category ID by slug
     cur.execute("SELECT id FROM categories WHERE slug = ?", (product['category_slug'],))
     category = cur.fetchone()
 
-    # Look up the origin ID by country name
     cur.execute("SELECT id FROM origins WHERE country = ?", (product['origin_country'],))
     origin = cur.fetchone()
 
@@ -90,11 +100,8 @@ for product in products_data:
         )
     )
 
-# Commit all changes and close
 connection.commit()
 connection.close()
 
 print("Database initialised successfully.")
-
-import os
-print("DB LOCATION:", os.path.abspath("database.db"))
+print("DB LOCATION:", DB_PATH)

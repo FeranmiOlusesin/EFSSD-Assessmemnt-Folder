@@ -2,56 +2,69 @@
 
 {% block content %}
 
-<h1>Register An Account</h1>
-<hr>
+<h1 class="mb-3">Register an account</h1>
+<p class="page-intro">You will need a valid email and UK postcode for delivery.</p>
+<hr class="my-4">
 
-<!-- Registration Form -->
 <form method="post">
     <input type="hidden" name="csrf_token" value="{{ csrf_token }}">
 
-    <div class="d-grid col-8 mx-auto">
-
-        <div class="form-floating mb-3">
-            <input name="username" type="text" class="form-control" id="username" placeholder="Username" value="{{ request.form['username'] }}">
-            <label for="username">Username</label>
+    <div class="row g-3">
+        <div class="col-12 col-md-6">
+            <div class="form-floating">
+                <input name="username" type="text" class="form-control" id="username" placeholder="Username" value="{{ request.form.get('username', '') }}" required>
+                <label for="username">Username</label>
+            </div>
         </div>
-        <div class="form-floating mb-3">
-            <input name="email" type="email" class="form-control" id="email" placeholder="Email" value="{{ request.form['email'] }}">
-            <label for="email">Email</label>
+        <div class="col-12 col-md-6">
+            <div class="form-floating">
+                <input name="email" type="email" class="form-control" id="email" placeholder="Email" value="{{ request.form.get('email', '') }}" required>
+                <label for="email">Email</label>
+            </div>
         </div>
-        <div class="form-floating mb-3">
-            <input name="full_name" type="text" class="form-control" id="full_name" placeholder="Full Name" value="{{ request.form['full_name'] }}">
-            <label for="full_name">Full Name</label>
+        <div class="col-12 col-md-6">
+            <div class="form-floating">
+                <input name="full_name" type="text" class="form-control" id="full_name" placeholder="Full name" value="{{ request.form.get('full_name', '') }}" required>
+                <label for="full_name">Full name</label>
+            </div>
         </div>
-        <div class="form-floating mb-3">
-            <input name="phone" type="text" class="form-control" id="phone" placeholder="Phone Number" value="{{ request.form['phone'] }}">
-            <label for="phone">Phone Number</label>
+        <div class="col-12 col-md-6">
+            <div class="form-floating">
+                <input name="phone" type="text" class="form-control" id="phone" placeholder="Phone" value="{{ request.form.get('phone', '') }}" required>
+                <label for="phone">Phone</label>
+            </div>
         </div>
-        <div class="form-floating mb-3">
-            <input name="address" type="text" class="form-control" id="address" placeholder="Address" value="{{ request.form['address'] }}">
-            <label for="address">Address</label>
+        <div class="col-12">
+            <div class="form-floating">
+                <input name="uk_postcode" type="text" class="form-control" id="uk_postcode" placeholder="UK postcode" value="{{ request.form.get('uk_postcode', '') }}" required>
+                <label for="uk_postcode">UK postcode</label>
+            </div>
         </div>
-        <div class="form-floating mb-3">
-            <input name="password" type="password" class="form-control" id="password" placeholder="Password">
-            <label for="password">Password</label>
+        <div class="col-12 col-md-6">
+            <div class="form-floating">
+                <input name="password" type="password" class="form-control" id="password" placeholder="Password" required>
+                <label for="password">Password</label>
+            </div>
         </div>
-        <div class="form-floating mb-3">
-            <input name="repassword" type="password" class="form-control" id="repassword" placeholder="Re-enter Password">
-            <label for="repassword">Re-enter Password</label>
+        <div class="col-12 col-md-6">
+            <div class="form-floating">
+                <input name="repassword" type="password" class="form-control" id="repassword" placeholder="Confirm password" required>
+                <label for="repassword">Confirm password</label>
+            </div>
         </div>
-
-        <button type="submit" class="btn btn-success">Register</button>
-
+        <div class="col-12 mt-3">
+            <button type="submit" class="btn btn-success btn-lg px-5">Register</button>
+        </div>
     </div>
 </form>
 
 {% endblock %}
 
 {% block sidebarContent %}
-    <div class="card text-center mt-3">
-        <div class="card-body">
-            <h5 class="card-title">Already have an account?</h5>
-            <a href="{{ url_for('login') }}" class="btn btn-primary">Log In Here</a>
+    <div class="card sidebar-card mt-3">
+        <div class="card-body text-center py-4">
+            <h2 class="h6 card-title">Already registered?</h2>
+            <a href="{{ url_for('login') }}" class="btn btn-outline-success w-100">Log in</a>
         </div>
     </div>
 {% endblock %}
