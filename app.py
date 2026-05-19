@@ -528,9 +528,10 @@ def logout():
     return redirect(url_for('index'))
 
 
-
 @app.route('/create_product', methods=['GET', 'POST'])
 def create_product():
+    #Get categories data
+    categories = get_all_categories()
     if request.method == 'POST':
         name = request.form['name']
         description = request.form['description']
@@ -548,7 +549,7 @@ def create_product():
         conn.close()
         flash('Product created successfully!', 'success')
         return redirect(url_for('product_list'))
-    return render_template('create_product.html', title="Add New Product")
+    return render_template('create_product.html', title="Add New Product", categories=categories)
 
 # Edit A Product Page
 @app.route('/update/<int:id>/', methods=('GET', 'POST'))

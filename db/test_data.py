@@ -1,4 +1,4 @@
-# Test data for the African grocery app — UK-style fictitious store details for coursework
+# Test data for AfroGrocer
 
 users_data = [
     {
